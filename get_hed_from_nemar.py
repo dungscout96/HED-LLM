@@ -48,7 +48,7 @@ for dir in os.listdir(data_dir):
                         print(hed)
 
                         # create dataframe with desc and hed
-                        df = pd.DataFrame({'desc': desc, 'hed': hed})
+                        df = pd.DataFrame({'desc': desc, 'hed': hed, 'ds': [dir]*len(desc), 'version': [dataset_description['HEDVersion']]*len(desc)})
                         print(df.head())
                         dataset.append(df)
 print(dataset)
@@ -56,3 +56,4 @@ dataset = pd.concat(dataset)
 print(dataset)
 with open('hed_dataset.csv', 'w') as out:
     dataset.to_csv(out)
+
