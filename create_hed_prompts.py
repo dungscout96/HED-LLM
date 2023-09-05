@@ -1,5 +1,7 @@
 from datasets import Dataset
 import pandas as pd
+import requests
+from io import StringIO
 
 def create_examples():
     HED = [
@@ -18,12 +20,24 @@ def create_hugging_dataset():
     examples_dict = create_examples()
     return Dataset.from_dict(examples_dict)
 
-def instruction():
-    return "Translate the following tagging into sentences assuming that parentheses mean association: '"
+def create_instructions():
+    '''
+    Create a list of intruction options in tuples of (<instruction>, <query>)
+    '''
+    options = [
+        ("Translate the following tagging into sentences assuming that parentheses mean association:", "Translation:")
+    ]
 
+    return options
+
+def get_examples_from_github():
+    endpoint = "https://raw.githubusercontent.com/dungscout96/HED-LLM/main/examples.tsv"
+    result = requests.get(endpoint)
+    return pd.read_csv(StringIO(result.text), sep="\t")
 
 def examples_to_tsv():
-    examples_dict = create_examples()
+    # examples_dict = create_examples()
+    examples_dict = get_examples_from_github().to_dict()
     df = pd.DataFrame.from_dict(examples_dict)
     with open('examples.tsv', 'w') as fout:
         df.to_csv(fout, index=False, sep='\t')
