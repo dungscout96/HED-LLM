@@ -13,6 +13,7 @@ class Model(ABC):
     def __init__(self):
         self.tokenizer = None
         self.model = None
+        self.generation_config = GenerationConfig(max_new_tokens=55, do_sample=True)
         pass
 
     @property
@@ -21,15 +22,16 @@ class Model(ABC):
         pass
 
     @abstractmethod
-    def decode(self, input, max_new_tokens=50, skip_special_token=False):
+    def decode(self, input):
         print("Input", input)
         inputs = self.tokenizer(input, return_tensors='pt')
         output = self.tokenizer.decode(
             self.model.generate(
                 inputs["input_ids"], 
-                max_new_tokens=max_new_tokens,
+                max_new_tokens=50,
+                temperature=0.5
             )[0], 
-            skip_special_tokens=skip_special_token
+            skip_special_tokens=True
         )
         return output
 
@@ -41,9 +43,9 @@ FLAN-T5 was released in the paper Scaling Instruction-Finetuned Language Models 
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained('google/flan-t5-base', use_fast=True)
         self.model = AutoModelForSeq2SeqLM.from_pretrained('google/flan-t5-base')
-
-    def decode(self, input, max_new_tokens=50, skip_special_token=True):
-        return super().decode(input, max_new_tokens, skip_special_token)
+        
+    def decode(self, input):
+        return super().decode(input)
     
     
 class GPT2(Model):
@@ -55,8 +57,8 @@ It’s a causal (unidirectional) transformer pretrained using language modeling 
         self.tokenizer = AutoTokenizer.from_pretrained("gpt2")
         self.model = GPT2LMHeadModel.from_pretrained("gpt2")
 
-    def decode(self, input, max_new_tokens=50, skip_special_token=True):
-        return super().decode(input, max_new_tokens, skip_special_token)
+    def decode(self, input):
+        return super().decode(input)
 
 class BART(Model):
     description = '''
@@ -66,7 +68,7 @@ The Bart model was proposed in BART: Denoising Sequence-to-Sequence Pre-training
         self.model = BartForConditionalGeneration.from_pretrained("facebook/bart-large", forced_bos_token_id=0)
         self.tokenizer = BartTokenizer.from_pretrained("facebook/bart-large")
 
-    def decode(self, input, max_new_tokens=50, skip_special_token=True):
+    def decode(self, input):
         batch = self.tokenizer(input, return_tensors="pt")
         generated_ids = self.model.generate(batch["input_ids"])
         output = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
@@ -80,13 +82,11 @@ We introduce GPT-NeoX-20B, a 20 billion parameter autoregressive language model 
         self.tokenizer = GPTNeoXTokenizerFast.from_pretrained("EleutherAI/gpt-neox-20b")
         self.model = GPTNeoXForCausalLM.from_pretrained("EleutherAI/gpt-neox-20b")
 
-    def decode(self, input, max_new_tokens=50, skip_special_token=True):
+    def decode(self, input):
         input_ids = self.tokenizer(input, return_tensors="pt").input_ids
         gen_tokens = self.model.generate(
             input_ids,
-            do_sample=True,
-            temperature=0.9,
-            max_length=100,
+            generation_config=self.generation_config
         )
         output = self.tokenizer.batch_decode(gen_tokens)[0]
         return output

@@ -2,7 +2,8 @@ from datasets import Dataset
 import pandas as pd
 import requests
 from io import StringIO
-
+from bs4 import BeautifulSoup
+import os
         
 def create_examples():
     HED = [
@@ -27,7 +28,8 @@ def create_instructions():
     Create a list of intruction options in tuples of (<instruction>, <query>)
     '''
     options = [
-        ("Translate the following tagging into sentences assuming that parentheses mean association:", "Translation:")
+        ("Translate the following tagging into sentences assuming that parentheses mean association:", "Translation:"),
+        ("The following tagging give short hand annotations with parentheses grouping related concepts together:", "Convert the tagging into full sentences:")
     ]
     for idx, option in enumerate(options):
         print(f'''Option {idx}:\n\tInstruction: "{option[0]}"\n\tQuery: "{option[1]}"\n\n''')
@@ -74,6 +76,31 @@ def make_prompt(dataset, example_indices_full, example_index_to_translate, instr
 """
         
     return prompt
-    
+
+def get_hed_vocab():
+    if os.path.exists('HEDLatest_terms'):
+        with open('HEDLatest_terms', 'r') as fin:
+            return fin.read()
+    else:
+        # URL of the XML file
+        url = "https://raw.githubusercontent.com/hed-standard/hed-schemas/main/standard_schema/hedxml/HEDLatest.xml"
+        
+        # Send a GET request to the URL
+        response = requests.get(url)
+        
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Parse the XML content
+            xml_content = response.text
+            soup = BeautifulSoup(xml_content, "lxml")
+        
+            # Find all nodes and extract their names
+            all_nodes = soup.find_all('node')
+            node_names = [node.find('name', recursive=False).string for node in all_nodes]
+        
+            return ','.join(node_names)
+    else:
+        print(f"Failed to retrieve data from the URL. Status code: {response.status_code}")
+
 if __name__ == "__main__":
     examples_to_tsv()

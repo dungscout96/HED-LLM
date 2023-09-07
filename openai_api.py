@@ -28,6 +28,13 @@ def to_hed(desc):
 		prompt=prompt)
 	return res['choices'][0]['text']
 
+def prompt_engineer(messages, model):
+	response = openai.ChatCompletion.create(
+    model=model,
+    messages=messages
+)
+	return response['choices'][0]['message']['content']
+    
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
 		description="Finetune OpenAI model for HED translation"
