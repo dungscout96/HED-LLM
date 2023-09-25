@@ -6,7 +6,9 @@ import argparse
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
+def get_openaikey():
+    return os.getenv("OPENAI_API_KEY")
+    
 def train(model):
 	dataset_jsonl = './hed_dataset_openai_cli_nodef_prepared.jsonl'
 	# dataset = pd.read_json(dataset_jsonl, orient='records', lines=True)
