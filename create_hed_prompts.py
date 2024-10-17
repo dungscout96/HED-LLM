@@ -1,4 +1,3 @@
-from datasets import Dataset
 import pandas as pd
 import requests
 from io import StringIO
@@ -17,11 +16,6 @@ def create_examples():
     ]
 
     return {"HED": HED, "description": description}
-
-def create_hugging_dataset():
-    df = get_examples_from_github()
-    examples_dict = df.to_dict(orient='list')
-    return Dataset.from_dict(examples_dict)
 
 def create_instructions():
     '''
@@ -99,8 +93,23 @@ def get_hed_vocab():
             node_names = [node.find('name', recursive=False).string for node in all_nodes]
         
             return ','.join(node_names)
-    else:
-        print(f"Failed to retrieve data from the URL. Status code: {response.status_code}")
+        else:
+            print(f"Failed to retrieve data from the URL. Status code: {response.status_code}")
 
+def get_coco_hed():
+    url = "https://raw.githubusercontent.com/MultimodalNeuroimagingLab/nsd_hed_labels/main/shared1000_HED.tsv"
+    # Send a GET request to the URL
+    response = requests.get(url)
+    
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        # Parse the XML content
+        tsv_table = response.text
+        df = pd.read_csv(StringIO(tsv_table), sep="\t")
+        return df
+    else:
+        return print(f"Failed to retrieve data from the URL. Status code: {response.status_code}")
+        
 if __name__ == "__main__":
-    examples_to_tsv()
+    # examples_to_tsv()
+    get_coco_hed_annotations()
