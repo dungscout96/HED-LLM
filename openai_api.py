@@ -31,11 +31,11 @@ def to_hed(desc):
 	return res['choices'][0]['text']
 
 def prompt_engineer(messages, model):
-	response = openai.ChatCompletion.create(
+	response = openai.chat.completions.create(
     model=model,
     messages=messages
 )
-	return response['choices'][0]['message']['content']
+	return response.choices[0].message.content
     
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(

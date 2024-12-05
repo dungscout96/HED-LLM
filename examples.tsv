@@ -1,3 +1,0 @@
-HED	description
-(Visual-presentation,(Background-view,Black),(Foreground-view,((Center-of,Computer-screen),(Cross,White)),(Grayscale,(Face,Hair,Image))))	The visual presentation has a black background view. In its foreground view, the center is associated with a computer screen and there's a white cross. There's also a grayscale element that includes features like a face, hair, and an image.
-(Foreground-view, ((Item-count, High), Ingestible-object)), (Background-view, ((Human, Body, Agent-trait/Adult), Outdoors, Furnishing, Natural-feature/Sky, Urban, Man-made-object))	<Example contributing description>
